@@ -6,9 +6,12 @@ from aiocoap import *
 logging.basicConfig(level=logging.INFO)
 
 async def main():
+    
+    ip = '172.17.0.3'
+
     protocol = await Context.create_client_context()
 
-    request = Message(code=GET, uri='coap://172.17.0.2/other/health')
+    request = Message(code=GET, uri='coap://' + ip + '/other/health')
 
     try:
         response = await protocol.request(request).response
@@ -19,7 +22,7 @@ async def main():
         print('Result: %s\n%r'%(response.code, response.payload))
 
     payload = b"CoAP POST Test Docker Connectivity"
-    request = Message(code=POST, payload = payload, uri='coap://172.17.0.2/other/health')
+    request = Message(code=POST, payload = payload, uri='coap://' + ip +'/other/health')
 
     try:
         response = await protocol.request(request).response
