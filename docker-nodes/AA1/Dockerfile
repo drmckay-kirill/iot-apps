@@ -8,3 +8,4 @@ RUN pip3 install pycrypto
 RUN pip3 install flask
 RUN pip3 install requests
 RUN cd /charm && dos2unix configure.sh && ./configure.sh && make && make install && ldconfig
+RUN pip3 install aiocoap

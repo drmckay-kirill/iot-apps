@@ -7,11 +7,11 @@ logging.basicConfig(level=logging.INFO)
 
 async def main():
     
-    ip = '172.17.0.3'
+    AA_server = 'aa'
 
     protocol = await Context.create_client_context()
 
-    request = Message(code=GET, uri='coap://' + ip + '/other/health')
+    request = Message(code=GET, uri='coap://' + AA_server + '/other/health')
 
     try:
         response = await protocol.request(request).response
@@ -22,7 +22,7 @@ async def main():
         print('Result: %s\n%r'%(response.code, response.payload))
 
     payload = b"CoAP POST Test Docker Connectivity"
-    request = Message(code=POST, payload = payload, uri='coap://' + ip +'/other/health')
+    request = Message(code=POST, payload = payload, uri='coap://' + AA_server +'/other/health')
 
     try:
         response = await protocol.request(request).response

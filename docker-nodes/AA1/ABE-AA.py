@@ -133,7 +133,7 @@ class ABEAttributeAuthority:
 
 def main():
     print('ABE scheme for AA TEST')
-    Message = 'SCIENCE!!!'
+    Message = 'Internet'
     print('Plain text: ' + Message)
 
     center = ABEAttributeAuthority()
@@ -141,11 +141,15 @@ def main():
     MK, PK = center.Setup()
     SK = center.GenerateSecretKey(MK, PK, ["Teapot"])   
     
-    text = 'SCIENCE!!!'
-    CT, EncryptedMessage = center.EncryptHybrid(PK, text, ["Teapot"])
-    assert center.DecryptHybrid(EncryptedMessage, SK, CT) == text, "Failed decryption!"
-    CT, EncryptedMessage = center.EncryptHybrid(PK, text, ["Teapot", "Lamp"])    
-    assert center.DecryptHybrid(EncryptedMessage, SK, CT) != text, "Failed decryption!"
+    CT, EncryptedMessage = center.EncryptHybrid(PK, Message, ["Teapot"])
+    assert center.DecryptHybrid(EncryptedMessage, SK, CT) == Message, "Failed decryption!"
+    
+    CT, EncryptedMessage = center.EncryptHybrid(PK, Message, ["Teapot", "Lamp"])    
+    assert center.DecryptHybrid(EncryptedMessage, SK, CT) != Message, "Failed decryption!"
+
+    Message = 'Very long text with usefull words: aaaaaaaa bbbbbbbbbb ccccccccccccc dddddddddddddddd eeeeeeeeeeeeeeeee ffffffffffffffffffffffff'
+    CT, EncryptedMessage = center.EncryptHybrid(PK, Message, ["Teapot"])
+    assert center.DecryptHybrid(EncryptedMessage, SK, CT) == Message, "Failed decryption!"    
 
 if __name__ == "__main__":
     main()   

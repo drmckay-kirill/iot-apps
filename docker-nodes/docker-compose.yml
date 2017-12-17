@@ -1,0 +1,20 @@
+version: '3'
+services:
+  
+  aa:
+    build: 
+      context: .
+      dockerfile: AA1/Dockerfile
+    ports:
+      - "5683:5683"
+    volumes:
+      - "/c/Users/sienc/iot_apps/docker-nodes/AA1:/mnt/service"
+    tty: true
+  
+  device1:
+    build:
+      context: .
+      dockerfile: device1/Dockerfile 
+    volumes:
+      - "/c/Users/sienc/iot_apps/docker-nodes/device1:/mnt/service"
+    tty: true
