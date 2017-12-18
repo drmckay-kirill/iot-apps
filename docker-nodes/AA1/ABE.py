@@ -4,7 +4,7 @@ from Crypto.Cipher import AES
 from charm.core.engine.util import objectToBytes, bytesToObject
 import hashlib, base64
 
-class ABEAttributeAuthority:
+class AttributeAuthority:
     """ Simple Attribute Authority Cryptography with AND-Gates without any features """
     def __init__(self):
         self.bs = 32
@@ -136,7 +136,7 @@ def main():
     Message = 'Internet'
     print('Plain text: ' + Message)
 
-    center = ABEAttributeAuthority()
+    center = AttributeAuthority()
     center.SetAttributesList(["Teapot", "Lamp", "Door", "Microwave", "WaterTap", "Washer", "Ventilator"])
     MK, PK = center.Setup()
     SK = center.GenerateSecretKey(MK, PK, ["Teapot"])   
