@@ -4,7 +4,7 @@ from Crypto.Cipher import AES
 from charm.core.engine.util import objectToBytes, bytesToObject
 import hashlib, base64
 
-class AttributeAuthority:
+class ABEEngine:
     """ Simple Attribute Authority Cryptography with AND-Gates without any features """
     def __init__(self):
         self.bs = 32
@@ -74,7 +74,35 @@ class AttributeAuthority:
         D_zero = PK['g'] ** (MK['w'] - s)
         SK = {'D_zero': D_zero, 'D': D}
         return SK
-        
+
+    def SerializeCharmObject(self, OriginalObject):
+        """ Serialize object contains charm API objects """
+        res = {}
+        for kvp in OriginalObject:
+            if kvp == 'W':
+                res[kvp] = OriginalObject[kvp]
+            elif type(OriginalObject[kvp]) is list:
+                res[kvp] = []
+                for element in OriginalObject[kvp]:
+                    res[kvp].append(objectToBytes(element, self.group))
+            else:
+                res[kvp] = objectToBytes(OriginalObject[kvp], self.group)
+        return res
+
+    def DeserializeCharmObject(self, RawObject):
+        """ Deserialize object contains charm API objects """
+        res = {}
+        for kvp in RawObject:
+            if kvp == 'W':
+                res[kvp] = RawObject[kvp]
+            elif type(RawObject[kvp]) is list:
+                res[kvp] = []
+                for element in RawObject[kvp]:
+                    res[kvp].append(bytesToObject(element, self.group))
+            else:
+                res[kvp] = bytesToObject(RawObject[kvp], self.group)
+        return res    
+
     def Encrypt(self, PK, M, DeviceAttributes):
         """ Encrypts message M (from Gt) under ciphertext policy W (array) """
         W = self.GetAttributesMask(DeviceAttributes)
@@ -136,7 +164,7 @@ def main():
     Message = 'Internet'
     print('Plain text: ' + Message)
 
-    center = AttributeAuthority()
+    center = ABEEngine()
     center.SetAttributesList(["Teapot", "Lamp", "Door", "Microwave", "WaterTap", "Washer", "Ventilator"])
     MK, PK = center.Setup()
     SK = center.GenerateSecretKey(MK, PK, ["Teapot"])   
