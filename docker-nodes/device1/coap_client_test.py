@@ -1,6 +1,5 @@
 import logging
 import asyncio
-import pickle
 from aiocoap import *
 
 logging.basicConfig(level=logging.INFO)
