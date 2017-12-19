@@ -1,6 +1,5 @@
 import aiocoap.resource as resource
 import aiocoap
-import pickle
 
 class AttributesListResource(resource.Resource):
     """Attributes Universe Service"""
@@ -9,4 +8,5 @@ class AttributesListResource(resource.Resource):
         self.attr = AA.attributes
 
     async def render_get(self, request):
-        return aiocoap.Message(payload = pickle.dumps(self.attr))
+        attr_str = '#'.join(self.attr)
+        return aiocoap.Message(payload = attr_str.encode('utf-8'))
