@@ -2,6 +2,9 @@ import logging
 import asyncio
 from aiocoap import *
 
+from ABE import ABEEngine
+import pickle
+
 logging.basicConfig(level=logging.INFO)
 
 async def PrintResponse(protocol, request):
@@ -23,6 +26,8 @@ async def GetResponse(protocol, request):
         return response.payload
 
 async def main():    
+    crypto = ABEEngine()
+
     AA_server = 'coap://aa'
     protocol = await Context.create_client_context()
     
@@ -32,8 +37,9 @@ async def main():
     attributes = attributes_str.decode('utf-8').split('#')
     print('Attributes: %s'%attributes)
 
-    PK = await GetResponse(protocol, Message(code = GET, uri = AA_server + '/abe/pk'))
-    #print(PK)
+    PK_bytes = await GetResponse(protocol, Message(code = GET, uri = AA_server + '/abe/pk'))
+    PK = crypto.DeserializeCharmObject(pickle.loads(PK_bytes))
+    print(PK)
     
 
 if __name__ == "__main__":
