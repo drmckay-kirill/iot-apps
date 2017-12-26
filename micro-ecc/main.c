@@ -1,4 +1,5 @@
 #include "uECC.h"
+#include "uECC_vli.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -14,12 +15,13 @@ int main() {
 
     uint8_t public[64];
     uint8_t private[32];
-    uint8_t compressed_point[33];
-    uint8_t decompressed_point[64];
 
     int i;
 
-    const struct uECC_Curve_t * curve = uECC_secp160r1();
+    const struct uECC_Curve_t * curve = uECC_secp256r1();
+
+    uECC_word_t generator = *uECC_curve_G(curve);
+    printf("Generator = %02X\n", generator);
 
     printf("Generate random points.\n");
     for(i = 0; i < 10; i++) {
