@@ -41,6 +41,12 @@ async def main():
     PK = crypto.DeserializeCharmObject(pickle.loads(PK_bytes))
     print(PK)
     
+    my_test_attributes = ["AirSensor"]
+    my_test_attributes_str = '#'.join(my_test_attributes)
+    
+    SK_bytes = await GetResponse(protocol, Message(code = GET, uri = AA_server + '/abe/sk-test', payload = my_test_attributes_str.encode('utf-8')))
+    SK = crypto.DeserializeCharmObject(pickle.loads(SK_bytes))
+    print(SK)
 
 if __name__ == "__main__":
     asyncio.get_event_loop().run_until_complete(main()) 

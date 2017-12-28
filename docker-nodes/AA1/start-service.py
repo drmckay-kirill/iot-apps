@@ -7,6 +7,7 @@ from ABE import ABEEngine
 from HealthCheck import HealthResource
 from AttributesList import AttributesListResource
 from PublicKey import PublicKeyResource
+from SecretKeyTest import SecretKeyTestResource
 
 logging.basicConfig(level=logging.INFO)
 logging.getLogger("coap-server").setLevel(logging.DEBUG)
@@ -24,6 +25,7 @@ def main():
     root.add_resource(('other', 'health'), HealthResource())
     root.add_resource(('abe', 'attr'), AttributesListResource(AA))
     root.add_resource(('abe', 'pk'), PublicKeyResource(AA, AAdata))
+    root.add_resource(('abe', 'sk-test'), SecretKeyTestResource(AA, AAdata))
 
     asyncio.Task(aiocoap.Context.create_server_context(root))
     asyncio.get_event_loop().run_forever()
