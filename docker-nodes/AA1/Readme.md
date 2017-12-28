@@ -3,3 +3,4 @@
 ### HealthCheck.py - other, health, проверка статуса
 ### AttributesList.py - abe/attr, список всех возможных атрибутов
 ### PublicKey.py - abe/pk, возвращает открытый ключ как Charm Crypto объект
+### SecretKeyTest.py - abe/sk-test, возвращает секретный ключ по заданным атрибутам как Charm Crypto объект (тестовая фича)
