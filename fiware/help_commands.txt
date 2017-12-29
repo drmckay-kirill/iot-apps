@@ -1,0 +1,95 @@
+connect to container:
+    docker exec -it <CONTAINER_NAME> bash
+
+from iotagent:
+    curl http://localhost:4041/iot/about
+
+curl http://localhost:4041/iot/devices -X POST -H "Fiware-Service: myHome" -H "Fiware-ServicePath: /environment" -H "Content-Type: application/json" -d @- <<EOF
+{ 
+    "devices": [ 
+        { 
+            "device_id": "sensor01", 
+            "entity_name": "LivingRoomSensor", 
+            "entity_type": "multiSensor", 
+            "attributes": [ 
+                { "object_id": "t", "name": "Temperature", "type": "celsius" },
+                { "object_id": "l", "name": "Luminosity", "type": "lumens" }                  
+            ]
+        }
+    ]
+}
+EOF
+
+fix mosquitto image:
+    docker exec -it --user root fiware_mosquitto_1 bash
+    ln -s /usr/local/lib/libmosquitto.so.1 /usr/lib/libmosquitto.so.1
+
+from mosquitto:
+    mosquitto_pub -t /1234/sensor01/attrs -m '{"l":4,"t": "31.5"}'
+
+from any:
+
+curl http://orion:1026/v1/queryContext -X POST -H "Content-Type: application/json" -H "Accept: application/json" -H "Fiware-Service: myHome" -H "Fiware-ServicePath: /environment" -d @- <<EOF
+{
+    "entities": [
+        {
+            "isPattern": "false",
+            "id": "LivingRoomSensor",
+            "type": "multiSensor"
+        }
+    ]
+}
+EOF
+
+curl http://localhost:4041/iot/services -X POST -H "Fiware-Service: myHome" -H "Fiware-ServicePath: /environment" -H "Content-Type: application/json" -H "Cache-Control: no-cache" -d @- <<EOF
+{ 
+    "services": [ 
+      {
+          "resource": "",
+          "apikey": "AAFF9977",
+          "type": "potSensor"
+      }
+    ]
+}
+EOF
+
+curl http://localhost:4041/iot/devices -X POST -H "Fiware-Service: myHome" -H "Fiware-ServicePath: /environment" -H "Content-Type: application/json" -H "Cache-Control: no-cache" -d @- <<EOF
+{ 
+    "devices": [ 
+        { 
+            "device_id": "sensor02", 
+            "entity_name": "RosesPot", 
+            "entity_type": "potSensor",
+            "attributes": [
+              {
+                "name": "humidity",
+                "type": "degrees"
+              },
+              {
+                "name": "happiness",
+                "type": "subjective"
+              }
+            ]
+        }
+    ]
+}
+EOF
+
+from mosquitto:
+    mosquitto_pub -t /AAFF9977/sensor02/attrs -m '{"humidity": 76,"happiness": "Not bad"}'
+
+from any:
+
+curl http://orion:1026/v1/queryContext -X POST -H "Content-Type: application/json" -H "Accept: application/json" -H "Fiware-Service: myHome" -H "Fiware-ServicePath: /environment" -d @- <<EOF
+{
+    "entities": [
+        {
+            "isPattern": "false",
+            "id": "RosesPot",
+            "type": "potSensor"
+        }
+    ]
+}
+EOF
+
+

@@ -1,0 +1,36 @@
+version: '3'
+services:
+
+  mongo:
+    image: mongo:3.4
+    command: --nojournal
+    tty: true
+
+  orion:
+    image: fiware/orion
+    links:
+      - mongo
+    ports:
+      - "1026:1026"
+    command: -dbhost mongo
+    tty: true
+
+  mosquitto:
+    image: ansi/mosquitto
+    entrypoint: /usr/local/sbin/mosquitto    
+    ports:
+      - "9001:9001"   
+      - "1883:1883"       
+    tty: true
+
+  iotagent:
+    build:
+      context: iotagent/
+      dockerfile: Dockerfile
+    links:
+      - mongo
+      - orion
+      - mosquitto
+    ports:
+      - "4041:4041"
+    tty: true
