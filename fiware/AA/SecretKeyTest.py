@@ -12,5 +12,5 @@ class SecretKeyTestResource(resource.Resource):
 
     async def render_get(self, request):
         attributes = request.payload.decode('utf-8').split('#')
-        SK = center.GenerateSecretKey(self.data['MK'], self.data['PK'], attributes)
-        return aiocoap.Message(payload = pickle.dumps(SK))
+        SK = self.ABE.GenerateSecretKey(self.data['MK'], self.data['PK'], attributes)
+        return aiocoap.Message(payload = pickle.dumps(self.ABE.SerializeCharmObject(SK)))

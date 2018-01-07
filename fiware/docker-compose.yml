@@ -43,3 +43,21 @@ services:
     volumes:
       - "/c/Users/sienc/iot_apps/fiware/myiotagent:/opt/myiotagent"
     tty: true
+
+  aa:
+    build: 
+      context: .
+      dockerfile: AA/Dockerfile
+    ports:
+      - "5683:5683"
+    volumes:
+      - "/c/Users/sienc/iot_apps/fiware/AA:/opt/aa"
+    tty: true
+  
+  device1:
+    build:
+      context: .
+      dockerfile: device1/Dockerfile 
+    volumes:
+      - "/c/Users/sienc/iot_apps/fiware/device1:/opt/service"
+    tty: true
