@@ -9,6 +9,7 @@
   "author": "Kirill Ponomarev",
   "license": "ISC",
   "dependencies": {
+    "express": "*",
     "iotagent-node-lib": "*"
   }
 }
