@@ -34,3 +34,11 @@ services:
     ports:
       - "4041:4041"
     tty: true
+
+  myiotagent:
+    image: node:latest
+    ports:
+      - "4042:4042"
+    volumes:
+      - "/c/Users/sienc/iot_apps/fiware/myiotagent:/opt/myiotagent"
+    tty: true
