@@ -1,7 +1,15 @@
 var iotAgentLib = require('iotagent-node-lib'),
     http = require('http'),
     express = require('express'),
-    config = require('./config');
+    config = require('./config'),
+    coap = require('coap');
+
+const { StringDecoder } = require('string_decoder');
+const decoder = new StringDecoder('utf8');
+
+data = initABEfromCoapService({
+    url_attr: 'coap://aa/abe/attr'
+});
 
 iotAgentLib.activate(config, function(error) {
     if (error) {
@@ -12,11 +20,24 @@ iotAgentLib.activate(config, function(error) {
             if (error) {
                 console.log('Could not initialize South bound API due to the following error: %s', error);
             } else {
-                console.log('Both APIs started successfully');
+                console.log('Both APIs started successfully');                
             }   
-        }); 
+        });
     }   
 });
+
+function initABEfromCoapService(aa) {
+    data = { };
+
+    var req = coap.request(aa.url_attr);
+    req.on('response', function(res) {
+        attr_str = decoder.write(res.payload);
+        data.attr = attr_str.split("#");
+    });
+    req.end();
+
+    return data;
+}
 
 function initSouthbound(callback) {
     southboundServer = {

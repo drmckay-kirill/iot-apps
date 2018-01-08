@@ -10,6 +10,7 @@
   "license": "ISC",
   "dependencies": {
     "express": "*",
-    "iotagent-node-lib": "*"
+    "iotagent-node-lib": "*",
+    "coap": "*"
   }
 }
