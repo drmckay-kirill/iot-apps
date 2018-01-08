@@ -8,7 +8,8 @@ const { StringDecoder } = require('string_decoder');
 const decoder = new StringDecoder('utf8');
 
 data = initABEfromCoapService({
-    url_attr: 'coap://aa/abe/attr'
+    url_attr: 'coap://aa/abe/attr',
+    url_pk: 'coap://aa/abe/pk'
 });
 
 iotAgentLib.activate(config, function(error) {
@@ -29,12 +30,20 @@ iotAgentLib.activate(config, function(error) {
 function initABEfromCoapService(aa) {
     data = { };
 
-    var req = coap.request(aa.url_attr);
-    req.on('response', function(res) {
+    var req1 = coap.request(aa.url_attr);
+    req1.on('response', function(res) {
         attr_str = decoder.write(res.payload);
         data.attr = attr_str.split("#");
     });
-    req.end();
+    req1.end();
+
+    var req2 = coap.request(aa.url_pk);
+    req2.on('response', function(res){
+        data.pk_binary = res.payload;
+    });
+    req2.end();
+
+    
 
     return data;
 }
