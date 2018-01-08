@@ -11,5 +11,6 @@ class PublicKeyResource(resource.Resource):
         self.data = data
 
     async def render_get(self, request):
+        print("Public Key Request")
         PK = self.ABE.SerializeCharmObject(self.data['PK'])
         return aiocoap.Message(payload = pickle.dumps(PK))

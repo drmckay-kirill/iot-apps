@@ -9,7 +9,8 @@ const decoder = new StringDecoder('utf8');
 
 data = initABEfromCoapService({
     url_attr: 'coap://aa/abe/attr',
-    url_pk: 'coap://aa/abe/pk'
+    url_pk: 'coap://aa/abe/pk',
+    url_sk: 'coap://aa/abe/sk-test'
 });
 
 iotAgentLib.activate(config, function(error) {
@@ -32,18 +33,28 @@ function initABEfromCoapService(aa) {
 
     var req1 = coap.request(aa.url_attr);
     req1.on('response', function(res) {
-        attr_str = decoder.write(res.payload);
+        attr_binary = res.payload;
+        attr_str = decoder.write(attr_binary);
         data.attr = attr_str.split("#");
+        console.log("Received attributes list");
+        
+        var req3 = coap.request(aa.url_sk);
+        req3.write(attr_binary);
+        req3.on('response', function(res2) {
+            data.sk_binary = res2.payload;
+            console.log("Received secret key");
+        });
+        req3.end();
+
     });
     req1.end();
 
     var req2 = coap.request(aa.url_pk);
-    req2.on('response', function(res){
+    req2.on('response', function(res) {
         data.pk_binary = res.payload;
+        console.log("Received public key");
     });
     req2.end();
-
-    
 
     return data;
 }

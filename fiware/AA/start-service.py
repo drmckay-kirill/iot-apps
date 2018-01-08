@@ -10,7 +10,7 @@ from PublicKey import PublicKeyResource
 from SecretKeyTest import SecretKeyTestResource
 
 logging.basicConfig(level=logging.INFO)
-logging.getLogger("coap-server").setLevel(logging.DEBUG)
+# logging.getLogger("coap-server").setLevel(loggisng.DEBUG)
 
 def main():   
     
