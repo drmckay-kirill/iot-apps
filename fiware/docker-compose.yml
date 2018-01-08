@@ -36,10 +36,11 @@ services:
     tty: true
 
   myiotagent:
-    image: node:latest
+    build:
+      context: .
+      dockerfile: myiotagent/Dockerfile 
     ports:
       - "4042:4042"
-      - "8080:8080"
     volumes:
       - "/c/Users/sienc/iot_apps/fiware/myiotagent:/opt/myiotagent"
     tty: true
