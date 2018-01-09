@@ -3,3 +3,4 @@ charm
 .vscode
 main.exe
 node_modules
+attr.json

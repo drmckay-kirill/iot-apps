@@ -2,7 +2,7 @@ from charm.toolbox.pairinggroup import PairingGroup, ZR, G1, G2, GT, pair
 from Crypto import Random
 from Crypto.Cipher import AES
 from charm.core.engine.util import objectToBytes, bytesToObject
-import hashlib, base64
+import sys, hashlib, base64, json
 
 class ABEEngine:
     """ Simple Attribute Authority Cryptography with AND-Gates without any features """
@@ -158,3 +158,17 @@ class ABEEngine:
         cipher = AES.new(key, AES.MODE_CBC, iv)
         DecryptedMessage = self._unpad(cipher.decrypt(enc[AES.block_size:])).decode('utf-8')
         return DecryptedMessage
+
+    
+
+def main():
+    crypto = ABEEngine()
+    with open('attr.json') as attr_file:
+        crypto.SetAttributesList(json.load(attr_file))
+    
+    test = '#'.join(crypto.attributes)
+    print(test)
+    sys.stdout.flush()
+
+if __name__ == "__main__":
+    main() 

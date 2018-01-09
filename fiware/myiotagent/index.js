@@ -2,10 +2,13 @@ var iotAgentLib = require('iotagent-node-lib'),
     http = require('http'),
     express = require('express'),
     config = require('./config'),
-    coap = require('coap');
+    coap = require('coap'),
+    fs = require('fs');
 
 const { StringDecoder } = require('string_decoder');
 const decoder = new StringDecoder('utf8');
+
+var spawn = require("child_process").spawn;
 
 data = initABEfromCoapService({
     url_attr: 'coap://aa/abe/attr',
@@ -38,23 +41,34 @@ function initABEfromCoapService(aa) {
         data.attr = attr_str.split("#");
         console.log("Received attributes list");
         
-        var req3 = coap.request(aa.url_sk);
-        req3.write(attr_binary);
-        req3.on('response', function(res2) {
-            data.sk_binary = res2.payload;
-            console.log("Received secret key");
+        fs.writeFile('attr.json', JSON.stringify(data.attr), 'utf8', function(err) {
+            if(err) throw err;
+          });
+
+        var req2 = coap.request(aa.url_pk);
+        req2.on('response', function(res) {
+            data.pk_binary = res.payload;
+            console.log("Received public key");
+
+            var req3 = coap.request(aa.url_sk);
+            req3.write(attr_binary);
+            req3.on('response', function(res2) {
+                data.sk_binary = res2.payload;
+                console.log("Received secret key");
+
+                var process = spawn('python3', ["ABE.py", "encrypt"]);
+                process.stdout.on('data', function (data) {
+                    console.log(decoder.write(data));
+                });
+
+            });
+            req3.end();
+
         });
-        req3.end();
+        req2.end();
 
     });
     req1.end();
-
-    var req2 = coap.request(aa.url_pk);
-    req2.on('response', function(res) {
-        data.pk_binary = res.payload;
-        console.log("Received public key");
-    });
-    req2.end();
 
     return data;
 }
