@@ -10,7 +10,7 @@ const decoder = new StringDecoder('utf8');
 
 var spawn = require("child_process").spawn;
 
-data = initABEfromCoapService({
+initABEfromCoapService({
     url_attr: 'coap://aa/abe/attr',
     url_pk: 'coap://aa/abe/pk',
     url_sk: 'coap://aa/abe/sk-test'
@@ -50,15 +50,30 @@ function initABEfromCoapService(aa) {
             data.pk_binary = res.payload;
             console.log("Received public key");
 
+            var wstream = fs.createWriteStream('pk.bin');
+            wstream.write(data.pk_binary);
+            wstream.end();
+
             var req3 = coap.request(aa.url_sk);
             req3.write(attr_binary);
             req3.on('response', function(res2) {
                 data.sk_binary = res2.payload;
                 console.log("Received secret key");
 
-                var process = spawn('python3', ["ABE.py", "encrypt"]);
-                process.stdout.on('data', function (data) {
+                wstream = fs.createWriteStream('sk.bin');
+                wstream.write(data.sk_binary);
+                wstream.end();
+
+                var testMessage = "Hello, world! This is test message. It should appear twice.";
+                console.log(testMessage);                
+                var process = spawn('python3', ["ABE.py", "encrypt", testMessage, attr_str]);
+                process.stdout.on('data', function (data) {  
                     console.log(decoder.write(data));
+                    process_decrypt = spawn('python3', ["ABE.py", "decrypt"]);
+                    process_decrypt.stdout.on('data', function (test_res){
+                        console.log("test completed");
+                        console.log(decoder.write(test_res));
+                    });                 
                 });
 
             });
@@ -69,8 +84,6 @@ function initABEfromCoapService(aa) {
 
     });
     req1.end();
-
-    return data;
 }
 
 function initSouthbound(callback) {

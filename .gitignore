@@ -4,3 +4,6 @@ charm
 main.exe
 node_modules
 attr.json
+pk.bin
+sk.bin
+temp.bin

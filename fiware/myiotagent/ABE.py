@@ -2,7 +2,7 @@ from charm.toolbox.pairinggroup import PairingGroup, ZR, G1, G2, GT, pair
 from Crypto import Random
 from Crypto.Cipher import AES
 from charm.core.engine.util import objectToBytes, bytesToObject
-import sys, hashlib, base64, json
+import sys, hashlib, base64, json, pickle
 
 class ABEEngine:
     """ Simple Attribute Authority Cryptography with AND-Gates without any features """
@@ -161,13 +161,43 @@ class ABEEngine:
 
     
 
-def main():
-    crypto = ABEEngine()
-    with open('attr.json') as attr_file:
-        crypto.SetAttributesList(json.load(attr_file))
-    
-    test = '#'.join(crypto.attributes)
-    print(test)
+def main():   
+    try:
+        crypto = ABEEngine()
+        with open('attr.json') as attr_file:
+            crypto.SetAttributesList(json.load(attr_file))
+
+        operation = sys.argv[1]
+        
+        if (operation == "encrypt"):
+            message = sys.argv[2]
+            attributes = sys.argv[3].split('#')
+
+            with open('pk.bin', 'rb') as pk_file:
+                pk_bytes = pickle.load(pk_file)
+                pk = crypto.DeserializeCharmObject(pk_bytes)
+                ct, encrypted = crypto.EncryptHybrid(pk, message, attributes) 
+                response = {
+                    'M': encrypted,
+                    'CT': crypto.SerializeCharmObject(ct)
+                }
+                with open('temp.bin', 'wb') as temp_file:
+                    pickle.dump(response, temp_file)
+                    print("Save ciphertext in temp.bin")
+
+        elif (operation == "decrypt"):
+            with open('sk.bin', 'rb') as sk_file:
+                sk_bytes = pickle.load(sk_file)
+                sk = crypto.DeserializeCharmObject(sk_bytes)
+                with open('temp.bin', 'rb') as temp_file:
+                    temp = pickle.load(temp_file)
+                    ct = crypto.DeserializeCharmObject(temp['CT'])
+                    encrypted_message = temp['M']
+                    message = crypto.DecryptHybrid(encrypted_message, sk, ct)
+                    print(message)
+
+    except Exception as inst:
+        print(inst)
     sys.stdout.flush()
 
 if __name__ == "__main__":
