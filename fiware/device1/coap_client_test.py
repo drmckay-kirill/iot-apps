@@ -35,18 +35,29 @@ async def main():
     
     attributes_str = await GetResponse(protocol, Message(code = GET, uri = AA_server + '/abe/attr'))
     attributes = attributes_str.decode('utf-8').split('#')
-    print('Attributes: %s'%attributes)
+    # print('Attributes: %s'%attributes)
+    crypto.SetAttributesList(attributes)
 
     PK_bytes = await GetResponse(protocol, Message(code = GET, uri = AA_server + '/abe/pk'))
     PK = crypto.DeserializeCharmObject(pickle.loads(PK_bytes))
-    print(PK)
     
     my_test_attributes = ["AirSensor"]
     my_test_attributes_str = '#'.join(my_test_attributes)
     
     SK_bytes = await GetResponse(protocol, Message(code = GET, uri = AA_server + '/abe/sk-test', payload = my_test_attributes_str.encode('utf-8')))
     SK = crypto.DeserializeCharmObject(pickle.loads(SK_bytes))
-    print(SK)
+
+    message = "t|25,l|19.6"
+    CT, encrypted = crypto.EncryptHybrid(PK, message, my_test_attributes)
+    test_packet = { 'CT': crypto.SerializeCharmObject(CT), 'M': encrypted }
+    test_packet_bytes = pickle.dumps(test_packet)
+
+    iotagent_url = 'coap://myiotagent/Matteo'
+    service_key = 'abc'
+    device_id = 'ULSensor'
+    iotagent_url += '?i=' + device_id + '&k=' + service_key
+    xz = await GetResponse(protocol, Message(code = GET, uri = iotagent_url, payload = test_packet_bytes))
+    print(xz)
 
 if __name__ == "__main__":
     asyncio.get_event_loop().run_until_complete(main()) 

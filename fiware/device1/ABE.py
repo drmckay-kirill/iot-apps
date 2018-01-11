@@ -49,7 +49,7 @@ class ABEEngine:
             if attribute in DeviceAttributes:
                 res.append(1)
             else:
-                res.append(0)
+                res.append(-1)
         return res
 
     def GenerateSecretKey(self, MK, PK, DeviceAttributes):
