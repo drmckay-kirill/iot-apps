@@ -54,7 +54,7 @@ async def main():
     test_packet_bytes = pickle.dumps(test_packet)
 
     iotagent_url = 'coap://myiotagent/south'
-    service_key = 'abc'
+    service_key = 'dev'
     device_id = 'ULSensor'
     iotagent_url += '?i=' + device_id + '&k=' + service_key
     payload_bytes = test_packet_bytes

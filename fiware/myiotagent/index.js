@@ -89,18 +89,16 @@ function initSouthbound(server) {
         console.log("Service key: "+ get_params.k);
         console.log("Payload length: " + req.payload.length);
         
-        var wstream = fs.createWriteStream('temp.bin');
-        wstream.write(req.payload);
-        wstream.end();        
-
-        process_decrypt = spawn('python3', ["ABE.py", "decrypt"]);
-        process_decrypt.stdout.on('data', function (decoded_message){
-            console.log(decoder.write(decoded_message));
-            res.end('Hello ' + req.url.split('/')[1] + '\n');
-        });          
+        iotAgentLib.retrieveDevice(get_params.i, get_params.k, function(error, device) {
+            if (error) {
+                res.end('Couldnt find the device: ' + JSON.stringify(error));
+            } else {
+                res.end('Device successfully found');   
+            }
+        });       
         
     });
     server.listen(function() {
-        console.log('server started');
+        console.log('Server has been started...');
     });    
 }

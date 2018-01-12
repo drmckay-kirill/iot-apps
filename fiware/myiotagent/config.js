@@ -15,7 +15,8 @@ var config = {
     subservice: '/sensors',
     providerUrl: 'http://localhost:4042',
     deviceRegistrationDuration: 'P1M',
-    defaultType: 'Thing'
+    defaultType: 'Thing',
+    defaultKey: 'dev'
 };
 
 module.exports = config;
