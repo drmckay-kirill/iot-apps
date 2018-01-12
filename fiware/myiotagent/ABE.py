@@ -197,8 +197,7 @@ def main():
                     print(message)
 
     except Exception as inst:
-        print("python script error")
-        print(inst)
+        print('python script error: %s'%inst)
     sys.stdout.flush()
 
 if __name__ == "__main__":
