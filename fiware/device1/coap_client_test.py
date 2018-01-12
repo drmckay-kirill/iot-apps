@@ -18,6 +18,7 @@ async def PrintResponse(protocol, request):
 
 async def GetResponse(protocol, request):
     try:
+        print('Request payload length: %d'%len(request.payload))
         response = await protocol.request(request).response
     except Exception as e:
         print('Failed to fetch resource:')
@@ -52,11 +53,17 @@ async def main():
     test_packet = { 'CT': crypto.SerializeCharmObject(CT), 'M': encrypted }
     test_packet_bytes = pickle.dumps(test_packet)
 
-    iotagent_url = 'coap://myiotagent/Matteo'
+    iotagent_url = 'coap://myiotagent/south'
     service_key = 'abc'
     device_id = 'ULSensor'
     iotagent_url += '?i=' + device_id + '&k=' + service_key
-    xz = await GetResponse(protocol, Message(code = GET, uri = iotagent_url, payload = test_packet_bytes))
+    payload_bytes = test_packet_bytes
+    msg = Message(code = GET, uri = iotagent_url, payload = payload_bytes)
+
+    msg.opt.add_option(optiontypes.BlockOption(27, optiontypes.BlockOption.BlockwiseTuple(0, 10, 10)))
+    print(msg.opt)
+
+    xz = await GetResponse(protocol, msg)
     print(xz)
 
 if __name__ == "__main__":

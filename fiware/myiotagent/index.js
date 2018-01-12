@@ -64,7 +64,6 @@ function initABEfromCoapService(aa) {
                 console.log(testMessage);                
                 var process = spawn('python3', ["ABE.py", "encrypt", testMessage, attr_str]);
                 process.stdout.on('data', function (data) {  
-                    console.log(decoder.write(data));
                     process_decrypt = spawn('python3', ["ABE.py", "decrypt"]);
                     process_decrypt.stdout.on('data', function (test_res){
                         console.log("test completed");
@@ -86,12 +85,20 @@ function initSouthbound(server) {
     server.on('request', function(req, res) {
         get_query = req.url.split('?')[1];
         get_params = querystring.parse(get_query);
-        console.log(get_params.i);
-        console.log(get_params.k);
+        console.log("Device id: " + get_params.i);
+        console.log("Service key: "+ get_params.k);
+        console.log("Payload length: " + req.payload.length);
         
-        
+        var wstream = fs.createWriteStream('temp.bin');
+        wstream.write(req.payload);
+        wstream.end();        
 
-        res.end('Hello ' + req.url.split('/')[1] + '\n');
+        process_decrypt = spawn('python3', ["ABE.py", "decrypt"]);
+        process_decrypt.stdout.on('data', function (decoded_message){
+            console.log(decoder.write(decoded_message));
+            res.end('Hello ' + req.url.split('/')[1] + '\n');
+        });          
+        
     });
     server.listen(function() {
         console.log('server started');

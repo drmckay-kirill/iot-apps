@@ -197,6 +197,7 @@ def main():
                     print(message)
 
     except Exception as inst:
+        print("python script error")
         print(inst)
     sys.stdout.flush()
 
