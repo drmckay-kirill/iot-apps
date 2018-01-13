@@ -93,7 +93,14 @@ function initSouthbound(server) {
             if (error) {
                 res.end('Couldnt find the device: ' + JSON.stringify(error));
             } else {
-                res.end('Device successfully found');   
+                var wstream = fs.createWriteStream('temp.bin');
+                wstream.write(req.payload);
+                wstream.end();
+                process_decrypt = spawn('python3', ["ABE.py", "decrypt"]);
+                process_decrypt.stdout.on('data', function (decoded_message){
+                    console.log(decoder.write(decoded_message));
+                    res.end('Message succefully decrypted');
+                });   
             }
         });       
         
