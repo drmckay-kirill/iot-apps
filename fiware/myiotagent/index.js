@@ -91,16 +91,10 @@ function initSouthbound(server) {
         
         iotAgentLib.retrieveDevice(get_params.i, get_params.k, function(error, device) {
             if (error) {
+                res.code = 404;
                 res.end('Couldnt find the device: ' + JSON.stringify(error));
             } else {
-                var wstream = fs.createWriteStream('temp.bin');
-                wstream.write(req.payload);
-                wstream.end();
-                process_decrypt = spawn('python3', ["ABE.py", "decrypt"]);
-                process_decrypt.stdout.on('data', function (decoded_message){
-                    console.log(decoder.write(decoded_message));
-                    res.end('Message succefully decrypted');
-                });   
+                processMessageWithAndGatesABE(req, res, device);
             }
         });       
         
@@ -108,4 +102,54 @@ function initSouthbound(server) {
     server.listen(function() {
         console.log('Server has been started...');
     });    
+}
+
+function processMessageWithAndGatesABE(req, res, device) {
+    var wstream = fs.createWriteStream('temp.bin');
+    wstream.write(req.payload);
+    wstream.end();
+    process_decrypt = spawn('python3', ["ABE.py", "decrypt"]);
+    process_decrypt.stdout.on('data', function (decoded_message){
+        UlMessage = decoder.write(decoded_message);
+        values = parseUltralightMessage(UlMessage, device);
+        console.log(values);
+        updateDeviceInBroker(res, device, values);     
+    });
+}
+
+function parseUltralightMessage(data, device) {
+    function findType(name) {
+        for (var i=0; i < device.active.length; i++) {
+            if (device.active[i].name === name) {
+                return device.active[i].type;
+            }
+        }
+
+        return null;
+    }
+
+    function createAttribute(element) {
+        var pair = element.split('|'),
+            attribute = {
+                name: pair[0],
+                value: pair[1],
+                type: findType(pair[0])
+            };
+        
+        return attribute;
+    }
+    
+    return data.split(",").map(createAttribute);
+}
+
+function updateDeviceInBroker(response, device, values) {
+    iotAgentLib.update(device.name, device.type, '', values, device, function(error) {
+        if (error) {
+            response.code = 404;
+            response.end('Error updating the device');
+        } else {
+            response.code = 200;
+            response.end('Device successfully updated');
+        }        
+    }); 
 }
