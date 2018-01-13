@@ -24,59 +24,66 @@ async def GetResponse(protocol, request):
         print('Failed to fetch resource:')
         print(e)
     else:
-        return response.payload
+        return response.payload, response.code
 
 async def main(): 
     print('\nDevice emulator')   
+    config = {
+        'AA_server': 'coap://aa',
+        'message': 't|25,l|42',
+        'iotagent': 'myiotagent',
+        'ngsi_port': '4042',
+        'orion_url': 'http://orion:1026/',
+        'device_id': 'ULSensor',
+        'service_key': 'dev',
+        'entity_name': 'Sensor01',
+        'entity_type': 'BasicULSensor'
+    }
+    headers = { 
+        'Content-Type': 'application/json',
+        'Fiware-Service': 'myHome',
+        'Fiware-ServicePath': '/sensors'
+    }
+
     crypto = ABEEngine()
 
-    AA_server = 'coap://aa'
     protocol = await Context.create_client_context()
     
     print('Check Attribute Authority status')
-    await PrintResponse(protocol, Message(code = GET, uri = AA_server + '/other/health'))
+    await PrintResponse(protocol, Message(code = GET, uri = config['AA_server'] + '/other/health'))
 
     print('Request attributes universe in list')
-    attributes_str = await GetResponse(protocol, Message(code = GET, uri = AA_server + '/abe/attr'))
+    attributes_str, response_code = await GetResponse(protocol, Message(code = GET, uri = config['AA_server'] + '/abe/attr'))
     attributes = attributes_str.decode('utf-8').split('#') 
     crypto.SetAttributesList(attributes)
 
     print('Request public key')
-    PK_bytes = await GetResponse(protocol, Message(code = GET, uri = AA_server + '/abe/pk'))
+    PK_bytes, response_code = await GetResponse(protocol, Message(code = GET, uri = config['AA_server'] + '/abe/pk'))
     PK = crypto.DeserializeCharmObject(pickle.loads(PK_bytes))
     
     my_test_attributes = ["AirSensor"]
     my_test_attributes_str = '#'.join(my_test_attributes)
     
     print('Request secret key')
-    SK_bytes = await GetResponse(protocol, Message(code = GET, uri = AA_server + '/abe/sk-test', payload = my_test_attributes_str.encode('utf-8')))
+    SK_bytes, response_code = await GetResponse(protocol, Message(code = GET, uri = config['AA_server'] + '/abe/sk-test', payload = my_test_attributes_str.encode('utf-8')))
     SK = crypto.DeserializeCharmObject(pickle.loads(SK_bytes))
 
-    message = "t|25,l|19.6"
-    CT, encrypted = crypto.EncryptHybrid(PK, message, my_test_attributes)
+    CT, encrypted = crypto.EncryptHybrid(PK, config['message'], my_test_attributes)
     test_packet = { 'CT': crypto.SerializeCharmObject(CT), 'M': encrypted }
     test_packet_bytes = pickle.dumps(test_packet)
 
-    iotagent = 'myiotagent'
-    iotagent_coap_url = 'coap://' + iotagent + '/south'
-    iotagent_ngsi_url = 'http://' + iotagent + ':4042/iot/devices'
-    service_key = 'dev'
-    device_id = 'ULSensor'
-    iotagent_coap_url += '?i=' + device_id + '&k=' + service_key
+    iotagent_coap_url = 'coap://' + config['iotagent'] + '/south'
+    iotagent_ngsi_url = 'http://' + config['iotagent'] + ':' + config['ngsi_port'] + '/iot/devices'
+    iotagent_coap_url += '?i=' + config['device_id'] + '&k=' + config['service_key']
 
     if (len(sys.argv) > 1):
         if (sys.argv[1] == 'update'):
             print('Register device in my IoT Agent (ABE + CoAP)')
-            headers = { 
-                'Content-Type': 'application/json',
-                'Fiware-Service': 'myHome',
-                'Fiware-ServicePath': '/sensors'
-            }
             data = {
                 'devices': [{
-                    'device_id': device_id,
-                    'entity_name': 'Sensor01',
-                    'entity_type': 'BasicULSensor',
+                    'device_id': config['device_id'],
+                    'entity_name': config['entity_name'],
+                    'entity_type': config['entity_type'],
                     'attributes': [
                         {
                             'name': 't',
@@ -95,8 +102,19 @@ async def main():
     print('Send test message to Coap-ABE-IoTA')
     msg = Message(code = GET, uri = iotagent_coap_url, payload = test_packet_bytes)
     msg.opt.add_option(optiontypes.BlockOption(27, optiontypes.BlockOption.BlockwiseTuple(0, 10, 10)))
-    iota_response = await GetResponse(protocol, msg)
+    iota_response, response_code = await GetResponse(protocol, msg)
     print(iota_response)
+    if (response_code.is_successful()):
+        print('Request Orion Context Broker:')
+        data = {
+        "entities": [{
+                "isPattern": "false",
+                "id": config['entity_name'],
+                "type": config['entity_type']
+            }]            
+        }
+        res = requests.post(config['orion_url'] + 'v1/queryContext', data = json.dumps(data), headers = headers) 
+        print(res.text)
 
 if __name__ == "__main__":
     asyncio.get_event_loop().run_until_complete(main()) 
