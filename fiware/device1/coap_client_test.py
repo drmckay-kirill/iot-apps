@@ -3,7 +3,7 @@ import asyncio
 from aiocoap import *
 
 from ABE import ABEEngine
-import pickle, sys, requests, json
+import pickle, sys, requests, json, argparse
 
 logging.basicConfig(level=logging.INFO)
 
@@ -30,7 +30,6 @@ async def main():
     print('\nDevice emulator')   
     config = {
         'AA_server': 'coap://aa',
-        'message': 't|32,l|42',
         'iotagent': 'myiotagent',
         'ngsi_port': '4042',
         'orion_url': 'http://orion:1026/',
@@ -45,6 +44,13 @@ async def main():
         'Fiware-ServicePath': '/sensors'
     }
 
+    parser = argparse.ArgumentParser(description = "Device emulator")
+    parser.add_argument("-r", action = 'store_true', help = "Register device in FIWARE IoT Agent")
+    parser.add_argument("-t", type=float, default=25.0, metavar='T', help = "Temperature")
+    parser.add_argument("-l", type=float, default=19.0, metavar='L', help = "Length")
+    args = parser.parse_args()
+    config['message'] = 't|' + str(args.t) + ',l|' + str(args.l)
+    
     crypto = ABEEngine()
 
     protocol = await Context.create_client_context()
@@ -76,28 +82,27 @@ async def main():
     iotagent_ngsi_url = 'http://' + config['iotagent'] + ':' + config['ngsi_port'] + '/iot/devices'
     iotagent_coap_url += '?i=' + config['device_id'] + '&k=' + config['service_key']
 
-    if (len(sys.argv) > 1):
-        if (sys.argv[1] == 'update'):
-            print('Register device in my IoT Agent (ABE + CoAP)')
-            data = {
-                'devices': [{
-                    'device_id': config['device_id'],
-                    'entity_name': config['entity_name'],
-                    'entity_type': config['entity_type'],
-                    'attributes': [
-                        {
-                            'name': 't',
-                            'type': 'celsius'
-                        },
-                        {
-                            'name': 'l',
-                            'type': 'meters'
-                        }
-                    ]                    
-                }]
-            }
-            res = requests.post(iotagent_ngsi_url, data = json.dumps(data), headers = headers)    
-            print('Register reponse: %s'%res.text)
+    if (args.r):
+        print('Register device in my IoT Agent (ABE + CoAP)')
+        data = {
+            'devices': [{
+                'device_id': config['device_id'],
+                'entity_name': config['entity_name'],
+                'entity_type': config['entity_type'],
+                'attributes': [
+                    {
+                        'name': 't',
+                        'type': 'celsius'
+                    },
+                    {
+                        'name': 'l',
+                        'type': 'meters'
+                    }
+                ]                    
+            }]
+        }
+        res = requests.post(iotagent_ngsi_url, data = json.dumps(data), headers = headers)    
+        print('Register reponse: %s'%res.text)
 
     print('Send test message to Coap-ABE-IoTA')
     msg = Message(code = GET, uri = iotagent_coap_url, payload = test_packet_bytes)

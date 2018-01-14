@@ -14,7 +14,7 @@ logging.basicConfig(level=logging.INFO)
 # logging.getLogger("coap-server").setLevel(loggisng.DEBUG)
 
 def main():   
-    print("Start Attribute Authority Coap Service...")
+    print("\nStart Attribute Authority Coap Service...")
 
     parser = argparse.ArgumentParser(description = "Attribute Authority Coap Service")
     parser.add_argument("-f", action='store_true', help="Use keys from files")

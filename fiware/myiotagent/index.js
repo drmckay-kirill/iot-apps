@@ -131,8 +131,8 @@ function parseUltralightMessage(data, device) {
     function createAttribute(element) {
         var pair = element.split('|'),
             attribute = {
-                name: pair[0],
-                value: pair[1],
+                name: pair[0].trim(),
+                value: pair[1].trim(),
                 type: findType(pair[0])
             };
         
