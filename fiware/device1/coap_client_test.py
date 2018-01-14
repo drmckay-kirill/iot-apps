@@ -30,7 +30,7 @@ async def main():
     print('\nDevice emulator')   
     config = {
         'AA_server': 'coap://aa',
-        'message': 't|25,l|42',
+        'message': 't|32,l|42',
         'iotagent': 'myiotagent',
         'ngsi_port': '4042',
         'orion_url': 'http://orion:1026/',

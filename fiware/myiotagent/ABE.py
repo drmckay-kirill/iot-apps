@@ -1,8 +1,9 @@
 from charm.toolbox.pairinggroup import PairingGroup, ZR, G1, G2, GT, pair
 from Crypto import Random
 from Crypto.Cipher import AES
-from charm.core.engine.util import objectToBytes, bytesToObject
-import sys, hashlib, base64, json, pickle
+from charm.core.engine.util import bytesToObject, serializeObject, to_json
+import sys, hashlib, base64, json, pickle, zlib
+from charm.toolbox.bitstring import getBytes
 
 class ABEEngine:
     """ Simple Attribute Authority Cryptography with AND-Gates without any features """
@@ -84,9 +85,9 @@ class ABEEngine:
             elif type(OriginalObject[kvp]) is list:
                 res[kvp] = []
                 for element in OriginalObject[kvp]:
-                    res[kvp].append(objectToBytes(element, self.group))
+                    res[kvp].append(self.correctedObjectToBytes(element, self.group))
             else:
-                res[kvp] = objectToBytes(OriginalObject[kvp], self.group)
+                res[kvp] = self.correctedObjectToBytes(OriginalObject[kvp], self.group)
         return res
 
     def DeserializeCharmObject(self, RawObject):
@@ -142,7 +143,7 @@ class ABEEngine:
     def EncryptHybrid(self, PK, message, DeviceAttributes):
         """ Encrypts text under ciphertext policy W """
         M = self.group.random(GT)
-        key = hashlib.sha256(objectToBytes(M, self.group)).digest()
+        key = hashlib.sha256(self.correctedObjectToBytes(M, self.group)).digest()
         raw = self._pad(message)
         iv = Random.new().read(AES.block_size)
         cipher = AES.new(key, AES.MODE_CBC, iv)
@@ -152,14 +153,17 @@ class ABEEngine:
 
     def DecryptHybrid(self, EncryptedMessage, SK, CT):
         M = self.Decrypt(SK, CT)
-        key = hashlib.sha256(objectToBytes(M, self.group)).digest()
+        key = hashlib.sha256(self.correctedObjectToBytes(M, self.group)).digest()
         enc = base64.b64decode(EncryptedMessage)
         iv = enc[:AES.block_size]
         cipher = AES.new(key, AES.MODE_CBC, iv)
         DecryptedMessage = self._unpad(cipher.decrypt(enc[AES.block_size:])).decode('utf-8')
         return DecryptedMessage
 
-    
+    def correctedObjectToBytes(self, object, group):
+        object_ser = serializeObject(object, group)
+        result = getBytes(json.dumps(object_ser, default=to_json, sort_keys = True))
+        return base64.b64encode(zlib.compress(result))
 
 def main():   
     try:
