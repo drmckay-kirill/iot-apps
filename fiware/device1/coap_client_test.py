@@ -46,8 +46,8 @@ async def main():
 
     parser = argparse.ArgumentParser(description = "Device emulator")
     parser.add_argument("-r", action = 'store_true', help = "Register device in FIWARE IoT Agent")
-    parser.add_argument("-t", type=float, default=25.0, metavar='T', help = "Temperature")
-    parser.add_argument("-l", type=float, default=19.0, metavar='L', help = "Length")
+    parser.add_argument("-t", type=float, default=25.0, metavar='T', help = "Temperature (active)")
+    parser.add_argument("-l", type=float, default=19.0, metavar='L', help = "Length (active)")
     args = parser.parse_args()
     config['message'] = 't|' + str(args.t) + ',l|' + str(args.l)
     
@@ -98,13 +98,23 @@ async def main():
                         'name': 'l',
                         'type': 'meters'
                     }
-                ]                    
+                ],
+                'lazy': [
+                    {
+                        'name': 'p',
+                        'type': 'pascal'
+                    },
+                    {
+                        'name': 'c',
+                        'type': 'curiosity'
+                    }
+                ]                 
             }]
         }
         res = requests.post(iotagent_ngsi_url, data = json.dumps(data), headers = headers)    
         print('Register reponse: %s'%res.text)
 
-    print('Send test message to Coap-ABE-IoTA')
+    print('Send test message with active attributes to Coap-ABE-IoTA')
     msg = Message(code = GET, uri = iotagent_coap_url, payload = test_packet_bytes)
     msg.opt.add_option(optiontypes.BlockOption(27, optiontypes.BlockOption.BlockwiseTuple(0, 10, 10)))
     iota_response, response_code = await GetResponse(protocol, msg)
@@ -112,7 +122,7 @@ async def main():
     if (response_code.is_successful()):
         print('Request Orion Context Broker:')
         data = {
-        "entities": [{
+            "entities": [{
                 "isPattern": "false",
                 "id": config['entity_name'],
                 "type": config['entity_type']

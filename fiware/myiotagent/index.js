@@ -18,11 +18,25 @@ initABEfromCoapService({
     url_sk: 'coap://aa/abe/sk-test'
 });
 
+function queryContextHandler(id, type, attributes, callback) {
+    console.log("Receivee query context");
+    console.log('id: %s, type: %s', id, type);
+    console.log(attributes);
+}
+
+function updateContextHandler(id, type, attributes, callback) {
+    console.log("Update query context");
+    console.log('id: %s, type: %s', id, type);
+    console.log(attributes);    
+}
+
 iotAgentLib.activate(config, function(error) {
     if (error) {
         console.log('There was an error activating the IOTA');
         process.exit(1);
     } else {
+        iotAgentLib.setDataQueryHandler(queryContextHandler);
+        iotAgentLib.setDataUpdateHandler(updateContextHandler);        
         initSouthbound(server);
     }   
 });

@@ -13,7 +13,7 @@ var config = {
     types: {},
     service: 'myHome',
     subservice: '/sensors',
-    providerUrl: 'http://localhost:4042',
+    providerUrl: 'http://myiotagent:4042',
     deviceRegistrationDuration: 'P1M',
     defaultType: 'Thing',
     defaultKey: 'dev'
