@@ -5,7 +5,8 @@ var config = {
         port: '1026'
     },
     server: {
-        port: 4042
+        port: '4041',
+        host: 'myiotagent'
     },
     deviceRegistry: {
         type: 'memory'
@@ -13,7 +14,7 @@ var config = {
     types: {},
     service: 'myHome',
     subservice: '/sensors',
-    providerUrl: 'http://myiotagent:4042',
+    providerUrl: 'http://myiotagent:4041',
     deviceRegistrationDuration: 'P1M',
     defaultType: 'Thing',
     defaultKey: 'dev'

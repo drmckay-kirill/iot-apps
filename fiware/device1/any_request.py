@@ -1,10 +1,12 @@
 import requests, json
 
 def main():
-    print('Request lazy attributes from Orion Context Broker:')
+    print('Request to Orion Context Broker or IoTA')
 
     orion = 'http://orion:1026/v1/'
-    myid = 'nameSensor10'
+    iota = 'http://myiotagent:4041/iot/'
+    
+    myid = 'Sensor05'
     entity_type = 'BasicULSensor'
 
     headers = { 
@@ -23,14 +25,7 @@ def main():
         }]
     }
 
-    # res = requests.post(orion + 'registry/discoverContextAvailability', data = json.dumps(data), headers = headers)
-    # print(res.text)    
-
-    data["attributes"] = [
-        'b'
-    ]
-
-    res = requests.post(orion + 'queryContext', data = json.dumps(data), headers = headers)
+    res = requests.get(iota + 'devices', headers = headers)
     print(res.text)
 
 if __name__ == "__main__":

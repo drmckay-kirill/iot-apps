@@ -18,16 +18,28 @@ initABEfromCoapService({
     url_sk: 'coap://aa/abe/sk-test'
 });
 
-function queryContextHandler(id, type, attributes, callback) {
-    console.log("Receivee query context");
+function queryContextHandler(id, type, service, subservice, attributes, callback) {
+    console.log("Receive query context");
     console.log('id: %s, type: %s', id, type);
     console.log(attributes);
+
+    responses = [];
+    responses.push({
+        name: 'b',
+        type: 'mybits',
+        value: 42
+    });
+    return {
+        id: id,
+        type: type,
+        attributes: responses
+    };
 }
 
-function updateContextHandler(id, type, attributes, callback) {
-    console.log("Update query context");
+function updateContextHandler(id, type, service, subservice, attributes, callback) {
+    console.log("Update context");
     console.log('id: %s, type: %s', id, type);
-    console.log(attributes);    
+    console.log(attributes);
 }
 
 iotAgentLib.activate(config, function(error) {

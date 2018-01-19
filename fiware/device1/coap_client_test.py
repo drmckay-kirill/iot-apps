@@ -31,11 +31,11 @@ async def main():
     config = {
         'AA_server': 'coap://aa',
         'iotagent': 'myiotagent',
-        'ngsi_port': '4042',
+        'ngsi_port': '4041',
         'orion_url': 'http://orion:1026/',
-        'device_id': 'ULSensor',
+        'device_id': 'idSensor10',
         'service_key': 'dev',
-        'entity_name': 'Sensor01',
+        'entity_name': 'nameSensor10',
         'entity_type': 'BasicULSensor'
     }
     headers = { 
@@ -101,11 +101,11 @@ async def main():
                 ],
                 'lazy': [
                     {
-                        'name': 'p',
-                        'type': 'pascal'
+                        'name': 'b',
+                        'type': 'mybits'
                     },
                     {
-                        'name': 'c',
+                        'name': 'kk',
                         'type': 'curiosity'
                     }
                 ]                 
