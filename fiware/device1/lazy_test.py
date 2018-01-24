@@ -4,8 +4,8 @@ def main():
     print('Request lazy attributes from Orion Context Broker:')
 
     orion = 'http://orion:1026/v1/'
-    myid = 'nameSensor10'
-    entity_type = 'BasicULSensor'
+    myid = 'nameSensor16'
+    entity_type = 'anysensor'
 
     headers = { 
         'Content-Type': 'application/json'

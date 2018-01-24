@@ -33,10 +33,10 @@ async def main():
         'iotagent': 'myiotagent',
         'ngsi_port': '4041',
         'orion_url': 'http://orion:1026/',
-        'device_id': 'idSensor10',
+        'device_id': 'idSensor16',
         'service_key': 'dev',
-        'entity_name': 'nameSensor10',
-        'entity_type': 'BasicULSensor'
+        'entity_name': 'nameSensor16',
+        'entity_type': 'anysensor'
     }
     headers = { 
         'Content-Type': 'application/json',
