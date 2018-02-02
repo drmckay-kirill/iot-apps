@@ -4,29 +4,29 @@ def main():
     print('Request lazy attributes from Orion Context Broker:')
 
     orion = 'http://orion:1026/v1/'
-    myid = 'nameSensor16'
+    myid = 'nameSensor122'
     entity_type = 'anysensor'
 
     headers = { 
         'Content-Type': 'application/json'
 
-        ,'Fiware-Service': 'myHome'
-        ,'Fiware-ServicePath': '/sensors'
+        ,'Fiware-Service': 'myscience'
+        ,'Fiware-ServicePath': '/test'
         
     }   
 
     data = {
-        "entities": [{
-            "isPattern": "false",
-            "id": myid,
-            "type": entity_type
+        'entities': [{
+            'isPattern': 'false',
+            'id': myid,
+            'type': entity_type            
         }]
     }
 
     # res = requests.post(orion + 'registry/discoverContextAvailability', data = json.dumps(data), headers = headers)
     # print(res.text)    
 
-    data["attributes"] = [
+    data['attributes'] = [
         'b'
     ]
 

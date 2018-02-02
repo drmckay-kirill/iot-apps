@@ -33,15 +33,15 @@ async def main():
         'iotagent': 'myiotagent',
         'ngsi_port': '4041',
         'orion_url': 'http://orion:1026/',
-        'device_id': 'idSensor16',
+        'device_id': 'idSensor122',
         'service_key': 'dev',
-        'entity_name': 'nameSensor16',
+        'entity_name': 'nameSensor122',
         'entity_type': 'anysensor'
     }
     headers = { 
         'Content-Type': 'application/json',
-        'Fiware-Service': 'myHome',
-        'Fiware-ServicePath': '/sensors'
+        'Fiware-Service': 'myscience',
+        'Fiware-ServicePath': '/test'
     }
 
     parser = argparse.ArgumentParser(description = "Device emulator")
@@ -89,6 +89,8 @@ async def main():
                 'device_id': config['device_id'],
                 'entity_name': config['entity_name'],
                 'entity_type': config['entity_type'],
+                'service': 'myscience',
+                'subservice': '/test',
                 'attributes': [
                     {
                         'name': 't',
@@ -126,7 +128,8 @@ async def main():
                 "isPattern": "false",
                 "id": config['entity_name'],
                 "type": config['entity_type']
-            }]            
+            }], 
+            'attributes': ['t', 'l']           
         }
         res = requests.post(config['orion_url'] + 'v1/queryContext', data = json.dumps(data), headers = headers) 
         print(res.text)

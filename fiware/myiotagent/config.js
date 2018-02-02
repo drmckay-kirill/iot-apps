@@ -9,11 +9,16 @@ var config = {
         host: 'myiotagent'
     },
     deviceRegistry: {
-        type: 'memory'
+        type: 'mongodb'
     },
+    mongodb: {
+        host: 'mongo',
+        port: '27017',
+        db: 'iotagentjson'
+    },    
     types: {},
-    service: 'myHome',
-    subservice: '/sensors',
+    service: 'myscience',
+    subservice: '/test',
     providerUrl: 'http://myiotagent:4041',
     deviceRegistrationDuration: 'P1M',
     defaultType: 'Thing',

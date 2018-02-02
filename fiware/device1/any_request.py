@@ -6,14 +6,14 @@ def main():
     orion = 'http://orion:1026/'
     iota = 'http://myiotagent:4041/iot/'
     
-    myid = 'nameSensor16'
+    myid = 'nameSensor122'
     entity_type = 'anysensor'
 
     headers = { 
         'Content-Type': 'application/json'
 
-        ,'Fiware-Service': 'myHome'
-        ,'Fiware-ServicePath': '/sensors'
+        ,'Fiware-Service': 'myscience'
+        ,'Fiware-ServicePath': '/test'
         
     }   
 
@@ -29,14 +29,14 @@ def main():
     print(res.text)
 
     res = requests.get(orion + 'v1/registry/contextEntities/' + myid, headers = { 
-        'Fiware-Service': 'myHome'
-        ,'Fiware-ServicePath': '/sensors'       
+        'Fiware-Service': 'myscience'
+        ,'Fiware-ServicePath': '/test'       
     } )
     print(res.text)
 
     res = requests.get(orion + 'v2/entities/' + myid, headers = { 
-        'Fiware-Service': 'myHome'
-        ,'Fiware-ServicePath': '/sensors'       
+        'Fiware-Service': 'myscience'
+        ,'Fiware-ServicePath': '/test'       
     } )
     print(res.text)
 

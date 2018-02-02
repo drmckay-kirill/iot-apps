@@ -1,1 +1,2 @@
 use npm install --no-bin-links
+not use upper case letters in fiware services names
