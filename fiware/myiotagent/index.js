@@ -29,11 +29,12 @@ function queryContextHandler(id, type, service, subservice, attributes, callback
         type: 'mybits',
         value: 42
     });
-    return {
+    message = {
         id: id,
         type: type,
         attributes: responses
     };
+    callback(null, message);
 }
 
 function updateContextHandler(id, type, service, subservice, attributes, callback) {
