@@ -8,7 +8,7 @@ import pickle, sys, requests, json, argparse
 
 from LazyAttrResource import LazyAttrResource
 
-logging.basicConfig(level=logging.INFO)
+logging.getLogger("coap-server").setLevel(logging.DEBUG)
 
 async def PrintResponse(protocol, request):
     try:
@@ -150,6 +150,6 @@ if __name__ == "__main__":
     if (args.a):
         print('Start emulator service for Lazy Attributes')
         root = resource.Site()
-        root.add_resource(('test', 'lazy'), LazyAttrResource(cryptodata['abe'], cryptodata['PK'], cryptodata['SK']))
+        root.add_resource(('script', 'lazy'), LazyAttrResource(cryptodata['abe'], cryptodata['PK'], cryptodata['SK']))
         asyncio.Task(Context.create_server_context(root))
         asyncio.get_event_loop().run_forever()

@@ -23,18 +23,42 @@ function queryContextHandler(id, type, service, subservice, attributes, callback
     console.log('id: %s, type: %s', id, type);
     console.log(attributes);
 
-    responses = [];
-    responses.push({
-        name: 'b',
-        type: 'mybits',
-        value: 42
-    });
-    message = {
-        id: id,
-        type: type,
-        attributes: responses
-    };
-    callback(null, message);
+    // retrieve device information
+    device_service = 'coap://device1/script/lazy'
+    device_attr = ['AirSensor']
+
+    console.log('Device service: %s', device_service);
+    console.log('Device attributes');
+    console.log(device_attr);
+
+    try {
+        // make request to device for attibute values
+        var req = coap.request(device_service);
+        msg_payload = new Buffer('IoTA TEST', 'binary');
+        req.write(msg_payload);
+
+        req.on('response', function(res) {
+            device_response = decoder.write(res.payload);
+            console.log(device_response);
+
+            responses = [];
+            responses.push({
+                name: 'b',
+                type: 'mybits',
+                value: 42
+            });
+            message = {
+                id: id,
+                type: type,
+                attributes: responses
+            };
+            callback(null, message);
+
+        });
+        req.end();
+    } catch (err) {
+        console.log(err);
+    }
 }
 
 function updateContextHandler(id, type, service, subservice, attributes, callback) {
@@ -56,7 +80,7 @@ iotAgentLib.activate(config, function(error) {
 
 function initABEfromCoapService(aa) {
     data = { };
-
+    
     var req1 = coap.request(aa.url_attr);
     req1.on('response', function(res) {
         attr_binary = res.payload;

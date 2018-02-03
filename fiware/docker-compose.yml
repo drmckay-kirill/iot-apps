@@ -58,7 +58,7 @@ services:
   device1:
     build:
       context: .
-      dockerfile: device1/Dockerfile 
+      dockerfile: device1/Dockerfile     
     volumes:
       - "/c/Users/sienc/iot_apps/fiware/device1:/opt/service"
     tty: true

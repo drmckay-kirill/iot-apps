@@ -12,6 +12,7 @@ class LazyAttrResource(resource.Resource):
         self.SK = SK
 
     async def render_get(self, request):
-        print(request)
+        print('Incoming request for Lazy Attributes')
+        print(request.payload)
         message = b'test'
         return aiocoap.Message(payload = message)
