@@ -1,9 +1,12 @@
 import logging
 import asyncio
 from aiocoap import *
+import aiocoap.resource as resource
 
 from ABE import ABEEngine
 import pickle, sys, requests, json, argparse
+
+from LazyAttrResource import LazyAttrResource
 
 logging.basicConfig(level=logging.INFO)
 
@@ -26,7 +29,7 @@ async def GetResponse(protocol, request):
     else:
         return response.payload, response.code
 
-async def main(): 
+async def main(args, cryptodata): 
     print('\nDevice emulator')   
     config = {
         'AA_server': 'coap://aa',
@@ -44,11 +47,6 @@ async def main():
         'Fiware-ServicePath': '/test'
     }
 
-    parser = argparse.ArgumentParser(description = "Device emulator")
-    parser.add_argument("-r", action = 'store_true', help = "Register device in FIWARE IoT Agent")
-    parser.add_argument("-t", type=float, default=25.0, metavar='T', help = "Temperature (active)")
-    parser.add_argument("-l", type=float, default=19.0, metavar='L', help = "Length (active)")
-    args = parser.parse_args()
     config['message'] = 't|' + str(args.t) + ',l|' + str(args.l)
     
     crypto = ABEEngine()
@@ -134,5 +132,24 @@ async def main():
         res = requests.post(config['orion_url'] + 'v1/queryContext', data = json.dumps(data), headers = headers) 
         print(res.text)
 
+    cryptodata['PK'] = PK
+    cryptodata['SK'] = SK
+    cryptodata['abe'] = crypto
+
 if __name__ == "__main__":
-    asyncio.get_event_loop().run_until_complete(main()) 
+    cryptodata = {}
+    parser = argparse.ArgumentParser(description = "Device emulator")
+    parser.add_argument("-r", action = 'store_true', help = "Register device in FIWARE IoT Agent")
+    parser.add_argument("-a", action = 'store_true', help = "Start service for listening Lazy Attributes")
+    parser.add_argument("-t", type=float, default=25.0, metavar='T', help = "Temperature (active)")
+    parser.add_argument("-l", type=float, default=19.0, metavar='L', help = "Length (active)")
+    args = parser.parse_args()
+
+    asyncio.get_event_loop().run_until_complete(main(args, cryptodata))
+
+    if (args.a):
+        print('Start emulator service for Lazy Attributes')
+        root = resource.Site()
+        root.add_resource(('test', 'lazy'), LazyAttrResource(cryptodata['abe'], cryptodata['PK'], cryptodata['SK']))
+        asyncio.Task(Context.create_server_context(root))
+        asyncio.get_event_loop().run_forever()

@@ -4,7 +4,7 @@ import aiocoap
 import pickle
 
 class SecretKeyTestResource(resource.Resource):
-    """Seecret Key Delivery Service with test purpose"""
+    """Secret Key Delivery Service with test purpose"""
     def __init__(self, ABE, data):
         super().__init__()
         self.ABE = ABE
