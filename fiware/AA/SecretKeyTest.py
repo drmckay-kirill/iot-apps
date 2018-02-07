@@ -1,8 +1,6 @@
 import aiocoap.resource as resource
 import aiocoap
 
-import pickle
-
 class SecretKeyTestResource(resource.Resource):
     """Secret Key Delivery Service with test purpose"""
     def __init__(self, ABE, data):
@@ -15,4 +13,4 @@ class SecretKeyTestResource(resource.Resource):
         print("Secret Key Request: " + attr_str)
         attributes = attr_str.split('#')
         SK = self.ABE.GenerateSecretKey(self.data['MK'], self.data['PK'], attributes)
-        return aiocoap.Message(payload = pickle.dumps(self.ABE.SerializeCharmObject(SK)))
+        return aiocoap.Message(payload = self.ABE.SerializeCharmObject(SK))

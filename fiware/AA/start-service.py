@@ -2,7 +2,7 @@ import logging
 import asyncio
 import aiocoap.resource as resource
 import aiocoap
-import argparse, pickle
+import argparse
 
 from ABE import ABEEngine
 from HealthCheck import HealthResource
@@ -28,9 +28,9 @@ def main():
     if (args.f):
         print("Load data keys from file")
         with open('pk.bin', 'rb') as data_file:
-            PK = AA.DeserializeCharmObject(pickle.load(data_file)) 
+            PK = AA.DeserializeCharmObject(data_file.read()) 
         with open('mk.bin', 'rb') as data_file:
-            MK = AA.DeserializeCharmObject(pickle.load(data_file))                    
+            MK = AA.DeserializeCharmObject(data_file.read())                    
     else:
         print("Generate master and public keys")
         MK, PK = AA.Setup()
@@ -38,10 +38,10 @@ def main():
             print("Save keys to files")
             with open('pk.bin', 'wb') as data_file:
                 PublicKey = AA.SerializeCharmObject(PK)
-                pickle.dump(PublicKey, data_file)            
+                data_file.write(PublicKey)            
             with open('mk.bin', 'wb') as data_file:
                 MasterKey = AA.SerializeCharmObject(MK)
-                pickle.dump(MasterKey, data_file)      
+                data_file.write(MasterKey)      
 
     AAdata = { 'MK': MK, 'PK': PK }
 

@@ -2,7 +2,7 @@ from charm.toolbox.pairinggroup import PairingGroup, ZR, G1, G2, GT, pair
 from Crypto import Random
 from Crypto.Cipher import AES
 from charm.core.engine.util import bytesToObject, serializeObject, to_json
-import sys, hashlib, base64, json, pickle, zlib
+import sys, hashlib, base64, json, zlib
 from charm.toolbox.bitstring import getBytes
 
 class ABEEngine:
@@ -78,31 +78,11 @@ class ABEEngine:
 
     def SerializeCharmObject(self, OriginalObject):
         """ Serialize object contains charm API objects """
-        res = {}
-        for kvp in OriginalObject:
-            if kvp == 'W':
-                res[kvp] = OriginalObject[kvp]
-            elif type(OriginalObject[kvp]) is list:
-                res[kvp] = []
-                for element in OriginalObject[kvp]:
-                    res[kvp].append(self.correctedObjectToBytes(element, self.group))
-            else:
-                res[kvp] = self.correctedObjectToBytes(OriginalObject[kvp], self.group)
-        return res
+        return self.correctedObjectToBytes(OriginalObject, self.group)
 
     def DeserializeCharmObject(self, RawObject):
         """ Deserialize object contains charm API objects """
-        res = {}
-        for kvp in RawObject:
-            if kvp == 'W':
-                res[kvp] = RawObject[kvp]
-            elif type(RawObject[kvp]) is list:
-                res[kvp] = []
-                for element in RawObject[kvp]:
-                    res[kvp].append(bytesToObject(element, self.group))
-            else:
-                res[kvp] = bytesToObject(RawObject[kvp], self.group)
-        return res    
+        return bytesToObject(RawObject, self.group)   
 
     def Encrypt(self, PK, M, DeviceAttributes):
         """ Encrypts message M (from Gt) under ciphertext policy W (array) """
@@ -178,25 +158,26 @@ def main():
             attributes = sys.argv[3].split('#')
 
             with open('pk.bin', 'rb') as pk_file:
-                pk_bytes = pickle.load(pk_file)
+                pk_bytes = pk_file.read()
                 pk = crypto.DeserializeCharmObject(pk_bytes)
                 ct, encrypted = crypto.EncryptHybrid(pk, message, attributes) 
                 response = {
                     'M': encrypted,
-                    'CT': crypto.SerializeCharmObject(ct)
+                    'CT': ct
                 }
                 with open('temp.bin', 'wb') as temp_file:
-                    pickle.dump(response, temp_file)
+                    temp_file.write(crypto.SerializeCharmObject(response))
                     print("Save ciphertext in temp.bin")
 
         elif (operation == "decrypt"):
             with open('sk.bin', 'rb') as sk_file:
-                sk_bytes = pickle.load(sk_file)
+                sk_bytes = sk_file.read()
                 sk = crypto.DeserializeCharmObject(sk_bytes)
                 with open('temp.bin', 'rb') as temp_file:
-                    temp = pickle.load(temp_file)
-                    ct = crypto.DeserializeCharmObject(temp['CT'])
-                    encrypted_message = temp['M']
+                    temp = temp_file.read()
+                    decrypted_obj = crypto.DeserializeCharmObject(temp)
+                    ct = decrypted_obj['CT']
+                    encrypted_message = decrypted_obj['M']
                     message = crypto.DecryptHybrid(encrypted_message, sk, ct)
                     print(message)
 

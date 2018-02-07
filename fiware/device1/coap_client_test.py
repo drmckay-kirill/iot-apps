@@ -4,7 +4,7 @@ from aiocoap import *
 import aiocoap.resource as resource
 
 from ABE import ABEEngine
-import pickle, sys, requests, json, argparse
+import sys, requests, json, argparse
 
 from LazyAttrResource import LazyAttrResource
 
@@ -63,18 +63,18 @@ async def main(args, cryptodata):
 
     print('Request public key')
     PK_bytes, response_code = await GetResponse(protocol, Message(code = GET, uri = config['AA_server'] + '/abe/pk'))
-    PK = crypto.DeserializeCharmObject(pickle.loads(PK_bytes))
+    PK = crypto.DeserializeCharmObject(PK_bytes)
     
     my_test_attributes = ["AirSensor"]
     my_test_attributes_str = '#'.join(my_test_attributes)
     
     print('Request secret key')
     SK_bytes, response_code = await GetResponse(protocol, Message(code = GET, uri = config['AA_server'] + '/abe/sk-test', payload = my_test_attributes_str.encode('utf-8')))
-    SK = crypto.DeserializeCharmObject(pickle.loads(SK_bytes))
+    SK = crypto.DeserializeCharmObject(SK_bytes)
 
     CT, encrypted = crypto.EncryptHybrid(PK, config['message'], my_test_attributes)
-    test_packet = { 'CT': crypto.SerializeCharmObject(CT), 'M': encrypted }
-    test_packet_bytes = pickle.dumps(test_packet)
+    test_packet = { 'CT': CT, 'M': encrypted }
+    test_packet_bytes = crypto.SerializeCharmObject(test_packet)
 
     iotagent_coap_url = 'coap://' + config['iotagent'] + '/south'
     iotagent_ngsi_url = 'http://' + config['iotagent'] + ':' + config['ngsi_port'] + '/iot/devices'

@@ -1,8 +1,6 @@
 import aiocoap.resource as resource
 import aiocoap
 
-import pickle
-
 class LazyAttrResource(resource.Resource):
     """List for Lazy Attributes"""
     def __init__(self, ABE, PK, SK):
